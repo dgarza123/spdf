@@ -24,8 +24,12 @@ def extract_text_from_image_with_vision(image_data):
         return texts[0].description if texts else ""  # Return the full detected text
 
 # Function to extract text from PDF using images and Google Cloud Vision OCR
-def extract_graphics_as_images_for_ocr(pdf_path):
-    doc = fitz.open(pdf_path)
+def extract_graphics_as_images_for_ocr(uploaded_file):
+    # Read the uploaded file as a byte stream
+    pdf_bytes = uploaded_file.read()
+    
+    # Open the PDF with PyMuPDF from the byte stream
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     ocr_texts = []
 
     for page in doc:
@@ -43,15 +47,16 @@ def extract_graphics_as_images_for_ocr(pdf_path):
     return ocr_texts
 
 # Function to extract PDF metadata
-def detect_pdf_metadata(pdf_path):
-    doc = fitz.open(pdf_path)
+def detect_pdf_metadata(uploaded_file):
+    pdf_bytes = uploaded_file.read()
+    doc = fitz.open(stream=pdf_bytes, filetype="pdf")
     metadata = doc.metadata
     return metadata
 
 # Main function to extract data from PDF
-def extract_data_from_pdf(pdf_path):
-    ocr_text = extract_graphics_as_images_for_ocr(pdf_path)  # Extract OCR text from images using Google Cloud Vision
-    metadata = detect_pdf_metadata(pdf_path)  # Extract metadata for extra details
+def extract_data_from_pdf(uploaded_file):
+    ocr_text = extract_graphics_as_images_for_ocr(uploaded_file)  # Extract OCR text from images using Google Cloud Vision
+    metadata = detect_pdf_metadata(uploaded_file)  # Extract metadata for extra details
     
     # Combine all extracted data
     return {
