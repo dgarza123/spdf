@@ -3,3 +3,4 @@ PyMuPDF
 google-cloud-vision
 Pillow
 pandas
+
