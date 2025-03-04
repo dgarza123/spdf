@@ -5,10 +5,6 @@ from PIL import Image
 from io import BytesIO
 import fitz  # PyMuPDF
 
-# Debugging: Display all secrets to check if it's loaded correctly
-st.write("Available Secrets:")
-st.write(st.secrets)
-
 # Access Google Vision API key from Streamlit secrets (set in Streamlit Cloud)
 google_vision_api_key = st.secrets["google_vision"]["api_key"]
 
