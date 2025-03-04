@@ -5,14 +5,11 @@ from PIL import Image
 from io import BytesIO
 import fitz  # PyMuPDF
 
-# Access Google Vision API key from Streamlit secrets (set in Streamlit Cloud)
-google_vision_api_key = st.secrets["google_cloud_vision"]["api_key"]
+# Access Google Cloud Vision API key from Streamlit secrets (set in Streamlit Cloud)
+google_cloud_vision_api_key = st.secrets["google_cloud_vision"]["api_key"]
 
-# Set up environment variable for Google Cloud Vision API authentication using the API key
-os.environ["GOOGLE_API_KEY"] = google_vision_api_key
-
-# Initialize Google Cloud Vision client
-client = vision.ImageAnnotatorClient()
+# Initialize Google Cloud Vision client with the API key
+client = vision.ImageAnnotatorClient(credentials=google_cloud_vision_api_key)
 
 # Function to perform OCR using Google Cloud Vision
 def extract_text_from_image_with_vision(image_data):
