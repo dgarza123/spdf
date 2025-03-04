@@ -6,11 +6,11 @@ from io import BytesIO
 import fitz  # PyMuPDF
 import pandas as pd
 
-# Access Google Cloud Vision credentials from Streamlit secrets
-google_vision_credentials_path = st.secrets["google_cloud_vision"]["credentials_path"]
+# Access Google Vision API key from Streamlit secrets (from Secrets Manager)
+google_vision_api_key = st.secrets["google_vision"]["api_key"]
 
 # Set up environment variable for Google Cloud Vision API authentication
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_vision_credentials_path
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_vision_api_key
 
 # Initialize Google Cloud Vision client
 client = vision.ImageAnnotatorClient()
