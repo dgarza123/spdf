@@ -4,12 +4,11 @@ from google.cloud import vision
 from PIL import Image
 from io import BytesIO
 import fitz  # PyMuPDF
-import pandas as pd
 
-# Access Google Vision API key from Streamlit secrets (from Secrets Manager)
+# Access Google Vision API key from Streamlit secrets (set in Streamlit Cloud)
 google_vision_api_key = st.secrets["google_vision"]["api_key"]
 
-# Set up environment variable for Google Cloud Vision API authentication
+# Set up environment variable for Google Cloud Vision API authentication using the API key
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = google_vision_api_key
 
 # Initialize Google Cloud Vision client
