@@ -1,6 +1,8 @@
 import os
+import time
 import streamlit as st
 from google.cloud import vision
+from google.api_core.exceptions import ServiceUnavailable
 from PIL import Image
 from io import BytesIO
 import fitz  # PyMuPDF
@@ -11,17 +13,28 @@ google_cloud_vision_api_key = st.secrets["google_cloud_vision"]["api_key"]
 # Initialize Google Cloud Vision client with the API key
 client = vision.ImageAnnotatorClient(credentials=google_cloud_vision_api_key)
 
-# Function to perform OCR using Google Cloud Vision
+# Function to perform OCR using Google Cloud Vision with retry logic
 def extract_text_from_image_with_vision(image_data):
     image = vision.Image(content=image_data)
-    response = client.text_detection(image=image)
     
-    # Extract text from the response
-    if response.error.message:
-        raise Exception(f"Google Cloud Vision API Error: {response.error.message}")
-    else:
-        texts = response.text_annotations
-        return texts[0].description if texts else ""  # Return the full detected text
+    # Retry logic with exponential backoff for handling ServiceUnavailable errors
+    max_retries = 5
+    retry_delay = 2  # initial delay in seconds
+    
+    for attempt in range(max_retries):
+        try:
+            response = client.text_detection(image=image)
+            if response.error.message:
+                raise Exception(f"Google Cloud Vision API Error: {response.error.message}")
+            texts = response.text_annotations
+            return texts[0].description if texts else ""  # Return the full detected text
+        except ServiceUnavailable as e:
+            if attempt < max_retries - 1:
+                # Exponential backoff (doubling the delay each retry)
+                time.sleep(retry_delay * (2 ** attempt))
+            else:
+                # After retries, raise the error
+                raise e
 
 # Function to extract text from PDF using images and Google Cloud Vision OCR
 def extract_graphics_as_images_for_ocr(uploaded_file):
@@ -75,11 +88,14 @@ if uploaded_file is not None:
     st.write("Processing the file...")
 
     # Extract the necessary data from the uploaded PDF
-    extracted_data = extract_data_from_pdf(uploaded_file)
+    try:
+        extracted_data = extract_data_from_pdf(uploaded_file)
 
-    # Display extracted data
-    st.subheader("OCR Extracted Text from Images using Google Cloud Vision")
-    st.write(extracted_data["OCR Text"])
+        # Display extracted data
+        st.subheader("OCR Extracted Text from Images using Google Cloud Vision")
+        st.write(extracted_data["OCR Text"])
 
-    st.subheader("PDF Metadata")
-    st.write(extracted_data["Metadata"])
+        st.subheader("PDF Metadata")
+        st.write(extracted_data["Metadata"])
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
