@@ -2,16 +2,24 @@ import os
 import time
 import streamlit as st
 from google.cloud import vision
+from google.auth import credentials
+from google.auth.transport.requests import Request
 from google.api_core.exceptions import ServiceUnavailable
 from PIL import Image
 from io import BytesIO
 import fitz  # PyMuPDF
 
-# Access Google Cloud Vision API key from Streamlit secrets (set in Streamlit Cloud)
-google_cloud_vision_api_key = st.secrets["google_cloud_vision"]["api_key"]
+# Access Google Cloud Vision API credentials from Streamlit secrets (set in Streamlit Cloud)
+google_cloud_vision_credentials_json = st.secrets["google_cloud_vision"]["credentials_json"]
 
-# Initialize Google Cloud Vision client with the API key
-client = vision.ImageAnnotatorClient(credentials=google_cloud_vision_api_key)
+# Initialize Google Cloud Vision client with the credentials
+from google.oauth2 import service_account
+
+# Create the credentials object from the credentials JSON stored in Streamlit secrets
+credentials = service_account.Credentials.from_service_account_info(google_cloud_vision_credentials_json)
+
+# Initialize Google Cloud Vision client
+client = vision.ImageAnnotatorClient(credentials=credentials)
 
 # Function to perform OCR using Google Cloud Vision with retry logic
 def extract_text_from_image_with_vision(image_data):
