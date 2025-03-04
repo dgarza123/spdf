@@ -1,6 +1,5 @@
-streamlit
 google-cloud-vision
 PyMuPDF
-Pillow
+streamlit
 pandas
-
+Pillow
